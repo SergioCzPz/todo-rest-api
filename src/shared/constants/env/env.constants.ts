@@ -1,0 +1,9 @@
+export enum EnvVariables {
+  PORT = 'PORT',
+  ORIGIN = 'ORIGIN',
+  DB_HOST = 'DB_HOST',
+  DB_PORT = 'DB_PORT',
+  DB_ADMIN_USER = 'DB_ADMIN_USER',
+  DB_ADMIN_PASSWORD = 'DB_ADMIN_PASSWORD',
+  DB_DATABASE = 'DB_DATABASE',
+}
