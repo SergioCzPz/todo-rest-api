@@ -10,6 +10,6 @@ export default tseslint.config(
   eslintPluginPrettierRecommended,
   eslintConfigLove,
   {
-    ignores: ['eslint.config.mjs', 'commitlint.config.mjs', 'src/user/schemas/user.schema.ts'],
+    ignores: ['eslint.config.mjs', 'commitlint.config.mjs'],
   },
 )

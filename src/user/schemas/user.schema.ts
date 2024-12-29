@@ -22,7 +22,7 @@ export const UserSchema = z.object({
 })
 
 const HasID = z.object({ id: z.string() })
-const UserWithId = UserSchema.merge(HasID)
+const UserWithId = UserSchema.merge(HasID) // eslint-disable-line @typescript-eslint/no-unused-vars -- Is used for add user id
 
 export type User = z.infer<typeof UserWithId>
 
