@@ -29,3 +29,13 @@ export type CreateTaskDto = z.infer<typeof TaskSchema>
 export const PartialTaskSchema = TaskSchema.partial()
 
 export type UpdateTaskDto = z.infer<typeof PartialTaskSchema>
+
+// Schema to create a task
+export const TaskCreateSchema = z.object({
+  task: z.string({ required_error: 'Task is required' }).trim().min(minStringLength, 'Name cannot be empty'),
+  userId: z.string({ required_error: 'User ID is required' }).trim().min(minStringLength, 'UserID is required'),
+})
+
+// DTO create task
+
+export type CreateTask = z.infer<typeof TaskCreateSchema>

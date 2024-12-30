@@ -4,7 +4,7 @@ import type { User } from '../../data/entities/user.entity'
 import { v4 as uuidv4 } from 'uuid'
 import type { CreateUserDto, UpdateUserDto } from '../schemas/user.schema'
 import { bcryptPassword } from '../../shared/helpers/encrypt.password'
-import { userUpdateQuery } from '../../shared/helpers/update.query'
+import { UpdateDto, UpdateQuery } from '../../shared/helpers/update.query'
 
 export class UserService {
   private readonly dbConnection
@@ -46,7 +46,7 @@ export class UserService {
   }
 
   async updateUser(id: string, user: UpdateUserDto): Promise<ResultSetHeader> {
-    const query = userUpdateQuery(user)
+    const query = UpdateQuery(UpdateDto.USER, user)
     const values = [...Object.values(user), id]
 
     const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)

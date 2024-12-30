@@ -4,7 +4,7 @@ import { UserController } from '../controllers/user.controller'
 import { UserMiddleware } from '../middlewares/user.auth.middleware'
 import { validateUserCreate, validateUserUpdate } from '../middlewares/user.validate.middleware'
 import type { CreateUserDto, UpdateUserDto } from '../schemas/user.schema'
-import type { RequestCreateUser, RequestUserUpdate } from '../../shared/constants/request/request.user'
+import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
 
 export class UserRouter extends BaseRouter<UserController, UserMiddleware> {
   constructor() {
@@ -21,14 +21,14 @@ export class UserRouter extends BaseRouter<UserController, UserMiddleware> {
       await this.controller.getUser(req, res)
     })
 
-    this.router.post('/users', validateUserCreate, async (req: RequestCreateUser<CreateUserDto>, res: Response) => {
+    this.router.post('/users', validateUserCreate, async (req: RequestCreate<CreateUserDto>, res: Response) => {
       await this.controller.createUser(req, res)
     })
 
     this.router.patch(
       '/users/:id',
       validateUserUpdate,
-      async (req: RequestUserUpdate<UpdateUserDto, string>, res: Response) => {
+      async (req: RequestUpdate<UpdateUserDto, string>, res: Response) => {
         await this.controller.updateUser(req, res)
       },
     )

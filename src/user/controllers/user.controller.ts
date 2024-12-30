@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 import { UserService } from '../services/user.service'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes'
-import type { RequestUserUpdate, RequestCreateUser } from '../../shared/constants/request/request.user'
+import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
 import type { CreateUserDto, UpdateUserDto } from '../schemas/user.schema'
 
 export class UserController {
@@ -28,7 +28,7 @@ export class UserController {
     }
   }
 
-  async createUser(req: RequestCreateUser<CreateUserDto>, res: Response): Promise<void> {
+  async createUser(req: RequestCreate<CreateUserDto>, res: Response): Promise<void> {
     try {
       const resultSetHeader = await this.userService.createUser(req.body)
       res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeader })
@@ -37,7 +37,7 @@ export class UserController {
     }
   }
 
-  async updateUser(req: RequestUserUpdate<UpdateUserDto, string>, res: Response): Promise<void> {
+  async updateUser(req: RequestUpdate<UpdateUserDto, string>, res: Response): Promise<void> {
     try {
       const {
         params: { id },
