@@ -48,4 +48,16 @@ export class TaskController {
       console.log(error)
     }
   }
+
+  async deleteTask(req: Request, res: Response): Promise<void> {
+    try {
+      const {
+        params: { id },
+      } = req
+      const resultSetHeader = await this.taskService.deleteTask(id)
+      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeader })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }

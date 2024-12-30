@@ -31,5 +31,9 @@ export class TaskRouter extends BaseRouter<TaskController> {
         await this.controller.updateTask(req, res)
       },
     )
+
+    this.router.delete('/tasks/:id', async (req: Request, res: Response) => {
+      await this.controller.deleteTask(req, res)
+    })
   }
 }

@@ -52,4 +52,12 @@ export class TaskService {
     const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)
     return resultSetHeader
   }
+
+  async deleteTask(id: string): Promise<ResultSetHeader> {
+    const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(
+      'DELETE FROM `tasks` WHERE `task_id` = ? LIMIT 1',
+      [id],
+    )
+    return resultSetHeader
+  }
 }
