@@ -1,14 +1,13 @@
 import type { Request, Response } from 'express'
 import { BaseRouter } from '../../shared/routers/base.router'
 import { TaskController } from '../controllers/task.controller'
-import { TaskMiddleware } from '../middlewares/task.auth.middleware'
 import { validatePostTask, validateTaskUpdate } from '../middlewares/task.validate.middleware'
 import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
 import type { CreateTask, UpdateTaskDto } from '../schemas/task.schema'
 
-export class TaskRouter extends BaseRouter<TaskController, TaskMiddleware> {
+export class TaskRouter extends BaseRouter<TaskController> {
   constructor() {
-    super(TaskController, TaskMiddleware)
+    super(TaskController)
     this.routes()
   }
 

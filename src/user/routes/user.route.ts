@@ -1,14 +1,13 @@
 import type { Request, Response } from 'express'
 import { BaseRouter } from '../../shared/routers/base.router'
 import { UserController } from '../controllers/user.controller'
-import { UserMiddleware } from '../middlewares/user.auth.middleware'
 import { validateUserCreate, validateUserUpdate } from '../middlewares/user.validate.middleware'
 import type { CreateUserDto, UpdateUserDto } from '../schemas/user.schema'
 import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
 
-export class UserRouter extends BaseRouter<UserController, UserMiddleware> {
+export class UserRouter extends BaseRouter<UserController> {
   constructor() {
-    super(UserController, UserMiddleware)
+    super(UserController)
     this.routes()
   }
 
