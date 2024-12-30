@@ -48,4 +48,16 @@ export class UserController {
       console.log(error)
     }
   }
+
+  async deleteUser(req: Request, res: Response): Promise<void> {
+    try {
+      const {
+        params: { id },
+      } = req
+      const resultSetHeader = await this.userService.deleteUser(id)
+      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeader })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }

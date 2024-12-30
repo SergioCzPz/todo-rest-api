@@ -52,4 +52,13 @@ export class UserService {
     const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)
     return resultSetHeader
   }
+
+  async deleteUser(id: string): Promise<ResultSetHeader> {
+    const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(
+      'DELETE FROM `users` WHERE `user_id` = ? LIMIT 1',
+      [id],
+    )
+
+    return resultSetHeader
+  }
 }

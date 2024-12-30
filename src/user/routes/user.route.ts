@@ -31,5 +31,9 @@ export class UserRouter extends BaseRouter<UserController> {
         await this.controller.updateUser(req, res)
       },
     )
+
+    this.router.delete('/users/:id', async (req: Request, res: Response) => {
+      await this.controller.deleteUser(req, res)
+    })
   }
 }
