@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { Task } from '../../data/entities/task.entity'
 import type { CreateTask, UpdateTaskDto } from '../schemas/task.schema'
 import { formatDateIso } from '../../shared/helpers/date.iso'
-import { UpdateDto, UpdateQuery } from '../../shared/helpers/update.query'
+import { UpdateDto, UpdateQuery, type UpdateQueryOpt } from '../../shared/helpers/update.query'
 
 export class TaskService {
   private readonly dbConnection
@@ -47,7 +47,12 @@ export class TaskService {
   }
 
   async updateTask(id: string, task: UpdateTaskDto): Promise<ResultSetHeader> {
-    const query = UpdateQuery(UpdateDto.TASK, task)
+    const updateOpt: UpdateQueryOpt = {
+      table: UpdateDto.TASK,
+      dto: task,
+      id: 'task_id',
+    }
+    const query = UpdateQuery(updateOpt)
     const values = [...Object.values(task), id]
     const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)
     return resultSetHeader

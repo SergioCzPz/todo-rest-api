@@ -6,5 +6,5 @@ export interface Task extends RowDataPacket {
   task: string
   status: number
   startDate: string
-  finishDate: string
+  finishDate?: string
 }

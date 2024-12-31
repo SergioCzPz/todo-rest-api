@@ -4,6 +4,7 @@ import { UserController } from '../controllers/user.controller'
 import { validateUserCreate, validateUserUpdate } from '../middlewares/user.validate.middleware'
 import type { CreateUserDto, UpdateUserDto } from '../schemas/user.schema'
 import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
+import type { CreateTask, UpdateTaskDto } from '../../task/schemas/task.schema'
 
 export class UserRouter extends BaseRouter<UserController> {
   constructor() {
@@ -34,6 +35,26 @@ export class UserRouter extends BaseRouter<UserController> {
 
     this.router.delete('/users/:id', async (req: Request, res: Response) => {
       await this.controller.deleteUser(req, res)
+    })
+
+    this.router.get('/users/tasks/:id', async (req: Request, res: Response) => {
+      await this.controller.getTasks(req, res)
+    })
+
+    this.router.post('/users/tasks', async (req: RequestCreate<CreateTask>, res: Response) => {
+      await this.controller.createTask(req, res)
+    })
+
+    this.router.patch('/users/tasks/:id', async (req: RequestUpdate<UpdateTaskDto, string>, res: Response) => {
+      await this.controller.updateTask(req, res)
+    })
+
+    this.router.patch('/users/tasks/status/:id', async (req: RequestUpdate<UpdateTaskDto, string>, res: Response) => {
+      await this.controller.updateTask(req, res)
+    })
+
+    this.router.delete('/users/tasks/:id', async (req: Request, res: Response) => {
+      await this.controller.deleteTask(req, res)
     })
   }
 }

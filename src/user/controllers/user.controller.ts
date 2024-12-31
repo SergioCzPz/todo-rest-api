@@ -3,6 +3,7 @@ import { UserService } from '../services/user.service'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes'
 import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
 import type { CreateUserDto, UpdateUserDto } from '../schemas/user.schema'
+import type { CreateTask, UpdateTaskDto } from '../../task/schemas/task.schema'
 
 export class UserController {
   constructor(private readonly userService: UserService = new UserService()) {}
@@ -56,6 +57,63 @@ export class UserController {
       } = req
       const resultSetHeader = await this.userService.deleteUser(id)
       res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeader })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async getTasks(req: Request, res: Response): Promise<void> {
+    try {
+      const {
+        params: { id },
+      } = req
+      const tasks = await this.userService.getTasks(id)
+      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: tasks })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async createTask(req: RequestCreate<CreateTask>, res: Response): Promise<void> {
+    try {
+      const resultSet = await this.userService.createTask(req.body)
+      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSet })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async updateTask(req: RequestUpdate<UpdateTaskDto, string>, res: Response): Promise<void> {
+    try {
+      const {
+        params: { id },
+      } = req
+      const resultSet = await this.userService.updateTask(id, req.body)
+      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSet })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async updateStatus(req: RequestUpdate<UpdateTaskDto, string>, res: Response): Promise<void> {
+    try {
+      const {
+        params: { id },
+      } = req
+      const resultSet = await this.userService.updateStatus(id, req.body)
+      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSet })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async deleteTask(req: Request, res: Response): Promise<void> {
+    try {
+      const {
+        params: { id },
+      } = req
+      const resultSet = await this.userService.deleteTask(id)
+      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSet })
     } catch (error) {
       console.log(error)
     }

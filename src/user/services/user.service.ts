@@ -4,7 +4,10 @@ import type { User } from '../../data/entities/user.entity'
 import { v4 as uuidv4 } from 'uuid'
 import type { CreateUserDto, UpdateUserDto } from '../schemas/user.schema'
 import { bcryptPassword } from '../../shared/helpers/encrypt.password'
-import { UpdateDto, UpdateQuery } from '../../shared/helpers/update.query'
+import { UpdateDto, UpdateQuery, type UpdateQueryOpt } from '../../shared/helpers/update.query'
+import type { Task } from '../../data/entities/task.entity'
+import type { CreateTask, UpdateTaskDto } from '../../task/schemas/task.schema'
+import { formatDateIso } from '../../shared/helpers/date.iso'
 
 export class UserService {
   private readonly dbConnection
@@ -46,7 +49,12 @@ export class UserService {
   }
 
   async updateUser(id: string, user: UpdateUserDto): Promise<ResultSetHeader> {
-    const query = UpdateQuery(UpdateDto.USER, user)
+    const updateOpt: UpdateQueryOpt = {
+      table: UpdateDto.USER,
+      dto: user,
+      id: 'user_id',
+    }
+    const query = UpdateQuery(updateOpt)
     const values = [...Object.values(user), id]
 
     const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)
@@ -59,6 +67,68 @@ export class UserService {
       [id],
     )
 
+    return resultSetHeader
+  }
+
+  /**
+   *
+   * @param id from user
+   */
+  async getTasks(id: string): Promise<Task[]> {
+    const [tasks] = await this.dbConnection.pool.execute<Task[]>(
+      'SELECT * FROM `tasks` t INNER JOIN `task_status` ts ON t.task_id = ts.task_id WHERE t.user_id = ?',
+      [id],
+    )
+
+    return tasks
+  }
+
+  async createTask(taskCreate: CreateTask): Promise<ResultSetHeader[]> {
+    const { userId, task } = taskCreate
+    const taskId = uuidv4()
+    const [resultSetHeaderTasks] = await this.dbConnection.pool.execute<ResultSetHeader>(
+      'INSERT INTO `tasks`(`task_id`, `user_id`, `task`) VALUES (?, ?, ?)',
+      [taskId, userId, task],
+    )
+
+    const startDate = formatDateIso(new Date())
+    const [resultSetHeaderStatus] = await this.dbConnection.pool.execute<ResultSetHeader>(
+      'INSERT INTO `task_status`(`task_id`, `start_date`) VALUES(?, ?)',
+      [taskId, startDate],
+    )
+
+    return [resultSetHeaderTasks, resultSetHeaderStatus]
+  }
+
+  async updateTask(idTask: string, task: UpdateTaskDto): Promise<ResultSetHeader> {
+    const updateOpt: UpdateQueryOpt = {
+      table: UpdateDto.TASK,
+      dto: task,
+      id: 'task_id',
+    }
+    const query = UpdateQuery(updateOpt)
+    const values = [...Object.values(task), idTask]
+    const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)
+    return resultSetHeader
+  }
+
+  async updateStatus(idTask: string, task: UpdateTaskDto): Promise<ResultSetHeader> {
+    const updateOpt: UpdateQueryOpt = {
+      table: UpdateDto.TASK_STATUS,
+      dto: task,
+      id: 'task_id',
+    }
+    const query = UpdateQuery(updateOpt)
+    const values = [...Object.values(task), idTask]
+    const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)
+    return resultSetHeader
+  }
+
+  async deleteTask(id: string): Promise<ResultSetHeader> {
+    const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(
+      'DELETE FROM `tasks` WHERE `task_id` = ? LIMIT 1',
+      [id],
+    )
     return resultSetHeader
   }
 }
