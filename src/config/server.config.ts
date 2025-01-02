@@ -4,6 +4,7 @@ import { EnvVariables } from '../shared/constants/env/env.constants'
 import { getNumEnvironment } from '../shared/helpers/env'
 import { corsOptions } from './cors.config'
 import { routers } from './router.config'
+import cookieParser from 'cookie-parser'
 
 export class ServerConfig {
   public app: express.Application
@@ -19,6 +20,7 @@ export class ServerConfig {
     this.app.use(express.json())
     this.app.use(express.urlencoded({ extended: true }))
     this.app.use(cors(corsOptions))
+    this.app.use(cookieParser())
     this.app.use('/api', routers())
   }
 }

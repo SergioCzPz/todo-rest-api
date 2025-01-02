@@ -1,4 +1,4 @@
-import type { ResultSetHeader } from 'mysql2'
+import type { ResultSetHeader, RowDataPacket } from 'mysql2'
 import pool from '../../data/db'
 import type { User } from '../../data/entities/user.entity'
 import { v4 as uuidv4 } from 'uuid'
@@ -8,6 +8,10 @@ import { UpdateDto, UpdateQuery, type UpdateQueryOpt } from '../../shared/helper
 import type { Task } from '../../data/entities/task.entity'
 import type { CreateTask, UpdateTaskDto } from '../../task/schemas/task.schema'
 import { formatDateIso } from '../../shared/helpers/date.iso'
+
+interface UserId extends RowDataPacket {
+  id: string
+}
 
 export class UserService {
   private readonly dbConnection
@@ -26,6 +30,15 @@ export class UserService {
     const values = [id]
     const [user] = await this.dbConnection.pool.execute<User[]>('SELECT * FROM `users` WHERE `user_id` = ?', values)
     return user[this.firstElement]
+  }
+
+  async getUserId(emailUser: string): Promise<string> {
+    const [dataPackets] = await this.dbConnection.pool.execute<UserId[]>(
+      'SELECT `password` FROM `credentials` WHERE `email` = ?',
+      [emailUser],
+    )
+
+    return dataPackets[this.firstElement].id
   }
 
   async createUser(user: CreateUserDto): Promise<ResultSetHeader[]> {
