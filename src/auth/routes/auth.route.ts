@@ -19,5 +19,9 @@ export class AuthRouter extends BaseRouter<AuthController> {
     this.router.post('/register', async (req: RequestCreate<CreateUserDto>, res: Response) => {
       await this.controller.register(req, res)
     })
+
+    this.router.post('/logout', (req, res) => {
+      AuthController.logout(req, res)
+    })
   }
 }

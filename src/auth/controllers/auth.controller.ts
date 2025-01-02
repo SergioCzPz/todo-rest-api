@@ -1,4 +1,4 @@
-import type { Response } from 'express'
+import type { Request, Response } from 'express'
 import { AuthService } from '../services/auth.service'
 import type { RequestCreate } from '../../shared/constants/request/request'
 import type { Credential } from '../schemas/auth.schema'
@@ -56,5 +56,9 @@ export class AuthController {
     } catch (error) {
       console.log(error)
     }
+  }
+
+  static logout(req: Request, res: Response): void {
+    res.clearCookie('access_token').json({ message: 'Logout successful' })
   }
 }
