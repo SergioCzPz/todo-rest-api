@@ -1,11 +1,11 @@
 import type { Request, Response } from 'express'
 import { AuthService } from '../services/auth.service'
 import type { RequestCreate } from '../../shared/constants/request/request'
-import type { Credential } from '../schemas/auth.schema'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes'
 import { UserService } from '../../user/services/user.service'
 import { signJwt } from '../middlewares/auth.middleware'
-import type { CreateUserDto } from '../../user/schemas/user.schema'
+import type { CreateCredential } from '../../user/schemas/credential.schema'
+import type { UserCredential } from '../../user/schemas/user.credential.schema'
 
 export class AuthController {
   constructor(
@@ -13,7 +13,7 @@ export class AuthController {
     private readonly userService: UserService = new UserService(),
   ) {}
 
-  async login(req: RequestCreate<Credential>, res: Response): Promise<void> {
+  async login(req: RequestCreate<CreateCredential>, res: Response): Promise<void> {
     try {
       const isValid = await this.authService.authenticate(req.body)
 
@@ -22,7 +22,7 @@ export class AuthController {
         return
       }
 
-      const userId = await this.userService.getUserId(req.body.email)
+      const userId = await this.userService.getUserIdByEmail(req.body.email)
       const token = signJwt(userId)
 
       res.cookie('access_token', token, {
@@ -36,7 +36,7 @@ export class AuthController {
     }
   }
 
-  async register(req: RequestCreate<CreateUserDto>, res: Response): Promise<void> {
+  async register(req: RequestCreate<UserCredential>, res: Response): Promise<void> {
     try {
       const isRegisteredCorrect = await this.authService.register(req.body)
       if (!isRegisteredCorrect) {
@@ -44,7 +44,7 @@ export class AuthController {
         return
       }
 
-      const userId = await this.userService.getUserId(req.body.email)
+      const userId = await this.userService.getUserIdByEmail(req.body.email)
       const token = signJwt(userId)
 
       res.cookie('access_token', token, {

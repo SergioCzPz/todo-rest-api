@@ -1,7 +1,8 @@
-import type { UpdateTaskDto } from '../../task/schemas/task.schema'
-import type { UpdateUserDto } from '../../user/schemas/user.schema'
+import type { UpdateTask } from '../../task/schemas/task.schema'
+import type { UpdateCredential } from '../../user/schemas/credential.schema'
+import type { UpdateUser } from '../../user/schemas/user.schema'
 
-export enum UpdateDto {
+export enum Table {
   USER = 'users',
   USER_CREDENTIALS = 'credentials',
   TASK = 'tasks',
@@ -9,8 +10,8 @@ export enum UpdateDto {
 }
 
 export interface UpdateQueryOpt {
-  table: UpdateDto
-  dto: UpdateTaskDto | UpdateUserDto
+  table: Table
+  dto: UpdateTask | UpdateUser | UpdateCredential
   id: string
 }
 

@@ -2,8 +2,8 @@ import type { Request, Response } from 'express'
 import { UserService } from '../services/user.service'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes'
 import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
-import type { CreateUserDto, UpdateUserDto } from '../schemas/user.schema'
-import type { CreateTask, UpdateTaskDto } from '../../task/schemas/task.schema'
+import type { UpdateUser } from '../schemas/user.schema'
+import type { UserCredential } from '../schemas/user.credential.schema'
 
 export class UserController {
   constructor(private readonly userService: UserService = new UserService()) {}
@@ -13,7 +13,7 @@ export class UserController {
       const users = await this.userService.getUsers()
       res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: users })
     } catch (error) {
-      console.log(error)
+      console.log(typeof error)
     }
   }
 
@@ -22,14 +22,14 @@ export class UserController {
       const {
         params: { id },
       } = req
-      const user = await this.userService.getUser(id)
+      const user = await this.userService.getUserById(id)
       res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: user })
     } catch (error) {
-      console.log(error)
+      console.log(typeof error)
     }
   }
 
-  async createUser(req: RequestCreate<CreateUserDto>, res: Response): Promise<void> {
+  async createUser(req: RequestCreate<UserCredential>, res: Response): Promise<void> {
     try {
       const resultSetHeader = await this.userService.createUser(req.body)
       res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeader })
@@ -38,7 +38,7 @@ export class UserController {
     }
   }
 
-  async updateUser(req: RequestUpdate<UpdateUserDto, string>, res: Response): Promise<void> {
+  async updateUser(req: RequestUpdate<UpdateUser, string>, res: Response): Promise<void> {
     try {
       const {
         params: { id },
@@ -57,63 +57,6 @@ export class UserController {
       } = req
       const resultSetHeader = await this.userService.deleteUser(id)
       res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeader })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async getTasks(req: Request, res: Response): Promise<void> {
-    try {
-      const {
-        params: { id },
-      } = req
-      const tasks = await this.userService.getTasks(id)
-      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: tasks })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async createTask(req: RequestCreate<CreateTask>, res: Response): Promise<void> {
-    try {
-      const resultSet = await this.userService.createTask(req.body)
-      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSet })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async updateTask(req: RequestUpdate<UpdateTaskDto, string>, res: Response): Promise<void> {
-    try {
-      const {
-        params: { id },
-      } = req
-      const resultSet = await this.userService.updateTask(id, req.body)
-      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSet })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async updateStatus(req: RequestUpdate<UpdateTaskDto, string>, res: Response): Promise<void> {
-    try {
-      const {
-        params: { id },
-      } = req
-      const resultSet = await this.userService.updateStatus(id, req.body)
-      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSet })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async deleteTask(req: Request, res: Response): Promise<void> {
-    try {
-      const {
-        params: { id },
-      } = req
-      const resultSet = await this.userService.deleteTask(id)
-      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSet })
     } catch (error) {
       console.log(error)
     }

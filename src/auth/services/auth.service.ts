@@ -3,7 +3,7 @@ import pool from '../../data/db'
 import type { Credential } from '../schemas/auth.schema'
 import bcrypt from 'bcrypt'
 import { UserService } from '../../user/services/user.service'
-import type { CreateUserDto } from '../../user/schemas/user.schema'
+import type { UserCredential } from '../../user/schemas/user.credential.schema'
 
 interface Password extends RowDataPacket {
   password: string
@@ -11,7 +11,7 @@ interface Password extends RowDataPacket {
 
 export class AuthService {
   private readonly dbConnection
-  private readonly noUserFound = 0
+  private readonly noFieldCount = 0
   private readonly passwordArr = 0
   private readonly affectedRow = 1
 
@@ -26,22 +26,20 @@ export class AuthService {
       [email],
     )
 
-    if (resultSetHeaderEmail.fieldCount === this.noUserFound) return false
+    if (resultSetHeaderEmail.fieldCount === this.noFieldCount) return false
 
-    const [dataPackets] = await this.dbConnection.pool.execute<Password[]>(
+    const [passwordDb] = await this.dbConnection.pool.execute<Password[]>(
       'SELECT `password` FROM `credentials` WHERE `email` = ?',
       [email],
     )
 
-    const isValid = await bcrypt.compare(password, dataPackets[this.passwordArr].password)
+    const isValid = await bcrypt.compare(password, passwordDb[this.passwordArr].password)
 
     return isValid
   }
 
-  async register(user: CreateUserDto): Promise<boolean> {
+  async register(user: UserCredential): Promise<boolean> {
     const [resultSetHeaderUser, resultSetHeaderCredential] = await this.userService.createUser(user)
-    console.log(resultSetHeaderCredential)
-    console.log(resultSetHeaderUser)
 
     return (
       resultSetHeaderUser.affectedRows === this.affectedRow &&

@@ -1,41 +1,27 @@
+import type { RowDataPacket } from 'mysql2'
 import { z } from 'zod'
 
 const minStringLength = 1
 
 export const TaskSchema = z.object({
   task: z.string({ required_error: 'Task is required' }).trim().min(minStringLength, 'Name cannot be empty'),
-  userId: z.string({ required_error: 'User ID is required' }).trim().min(minStringLength, 'UserID is required'),
-  status: z.boolean({ required_error: 'Status task is required', invalid_type_error: 'status must be a boolean' }),
-  startDate: z.date({
-    required_error: 'Date must be provided',
-    invalid_type_error: 'Date must have next pattern yyyy-mm-dd',
-  }),
-  finishDate: z
-    .date({
-      required_error: 'Date must be provided',
-      invalid_type_error: 'Date must have next pattern yyyy-mm-dd',
-    })
-    .optional(),
 })
 
 const HasID = z.object({ taskId: z.string() })
-const TaskWithId = TaskSchema.merge(HasID) // eslint-disable-line @typescript-eslint/no-unused-vars -- Is used for add task and user id
+const TaskWithId = TaskSchema.merge(HasID)
+const HasUserId = z.object({
+  userId: z.string({ required_error: 'User ID is required' }).trim().min(minStringLength, 'UserID is required'),
+})
+const TaskWithTaskUserId = HasUserId.merge(TaskWithId) // eslint-disable-line @typescript-eslint/no-unused-vars -- Is used for add task and user id
 
-export type Task = z.infer<typeof TaskWithId>
+export type TaskDb = z.infer<typeof TaskWithTaskUserId> & RowDataPacket
 
-// DTO
-export type CreateTaskDto = z.infer<typeof TaskSchema>
+export type TaskId = z.infer<typeof TaskWithId>
+
+export type Task = z.infer<typeof TaskSchema> & RowDataPacket
+
+export type CreateTask = z.infer<typeof TaskSchema>
 
 export const PartialTaskSchema = TaskSchema.partial()
 
-export type UpdateTaskDto = z.infer<typeof PartialTaskSchema>
-
-// Schema to create a task
-export const TaskCreateSchema = z.object({
-  task: z.string({ required_error: 'Task is required' }).trim().min(minStringLength, 'Name cannot be empty'),
-  userId: z.string({ required_error: 'User ID is required' }).trim().min(minStringLength, 'UserID is required'),
-})
-
-// DTO create task
-
-export type CreateTask = z.infer<typeof TaskCreateSchema>
+export type UpdateTask = z.infer<typeof PartialTaskSchema>

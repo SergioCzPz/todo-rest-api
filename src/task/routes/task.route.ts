@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express'
 import { BaseRouter } from '../../shared/routers/base.router'
 import { TaskController } from '../controllers/task.controller'
-import { validatePostTask, validateTaskUpdate } from '../middlewares/task.validate.middleware'
+import { validateTaskCreate, validateTaskUpdate } from '../middlewares/task.validate.middleware'
 import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
-import type { CreateTask, UpdateTaskDto } from '../schemas/task.schema'
+import type { CreateTask, UpdateTask } from '../schemas/task.schema'
 
 export class TaskRouter extends BaseRouter<TaskController> {
   constructor() {
@@ -20,14 +20,14 @@ export class TaskRouter extends BaseRouter<TaskController> {
       await this.controller.getTask(req, res)
     })
 
-    this.router.post('/tasks', validatePostTask, async (req: RequestCreate<CreateTask>, res: Response) => {
+    this.router.post('/tasks', validateTaskCreate, async (req: RequestCreate<CreateTask>, res: Response) => {
       await this.controller.createTask(req, res)
     })
 
     this.router.patch(
       '/tasks/:id',
       validateTaskUpdate,
-      async (req: RequestUpdate<UpdateTaskDto, string>, res: Response) => {
+      async (req: RequestUpdate<UpdateTask, string>, res: Response) => {
         await this.controller.updateTask(req, res)
       },
     )
