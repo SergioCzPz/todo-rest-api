@@ -20,7 +20,10 @@ export class UserService {
 
   async getUserById(id: string): Promise<User> {
     const values = [id]
-    const [user] = await this.dbConnection.pool.execute<User[]>('SELECT * FROM `users` WHERE `user_id` = ?', values)
+    const [user] = await this.dbConnection.pool.execute<User[]>(
+      'SELECT `name`, `surname`, `occupation` FROM `users` WHERE `user_id` = ?',
+      values,
+    )
     return user[this.firstElement]
   }
 
@@ -54,8 +57,6 @@ export class UserService {
   }
 
   async updateUser(id: string, user: UpdateUser): Promise<ResultSetHeader> {
-    console.log('updateUser')
-
     const updateOpt: UpdateQueryOpt = {
       table: Table.USER,
       dto: user,

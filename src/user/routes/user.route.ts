@@ -18,7 +18,6 @@ export class UserRouter extends BaseRouter<UserController> {
       await this.controller.getUser(req, res)
     })
 
-    // TODO: controller.updateUser
     this.router.patch(
       '/users',
       checkJwt,
