@@ -34,6 +34,7 @@ export class TaskController {
       const {
         session: { userId },
       } = req
+
       const [resultSetHeaderTasks, resultSetHeaderStatus] = await this.taskService.createTask(userId, req.body)
       res
         .status(StatusCodes.OK)

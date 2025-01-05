@@ -4,6 +4,11 @@ import type { Request } from 'express'
 
 // export type RequestUpdate<T, U> = Request<{ id: U }, any, T, any> // eslint-disable-line @typescript-eslint/no-explicit-any -- Request from express handle any by default
 
+export interface ReqAuthUser extends Request {
+  cookies: { access_token?: string }
+  session?: { userId: string }
+}
+
 // prettier-ignore
 export interface RequestCreate<T> extends Request<any, any, T, any> { // eslint-disable-line @typescript-eslint/no-explicit-any -- Request from express handle any by default
   session?: { userId: string }

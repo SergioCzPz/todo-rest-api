@@ -3,9 +3,9 @@ import { AuthService } from '../services/auth.service'
 import type { RequestCreate } from '../../shared/constants/request/request'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes'
 import { UserService } from '../../user/services/user.service'
-import { signJwt } from '../middlewares/auth.middleware'
 import type { CreateCredential } from '../../user/schemas/credential.schema'
 import type { UserCredential } from '../../user/schemas/user.credential.schema'
+import { signJwt } from '../../shared/helpers/jwt'
 
 export class AuthController {
   constructor(
@@ -18,7 +18,7 @@ export class AuthController {
       const isValid = await this.authService.authenticate(req.body)
 
       if (!isValid) {
-        res.status(StatusCodes.UNAUTHORIZED).json({ message: ReasonPhrases.UNAUTHORIZED, data: 'No valid credentials' })
+        res.status(StatusCodes.BAD_REQUEST).json({ message: ReasonPhrases.BAD_REQUEST, data: 'No valid credentials' })
         return
       }
 
@@ -32,7 +32,7 @@ export class AuthController {
       // res.redirect('/dashboard')
       res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: token })
     } catch (error) {
-      console.log(error)
+      console.log(typeof error)
     }
   }
 

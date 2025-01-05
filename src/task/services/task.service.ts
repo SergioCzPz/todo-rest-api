@@ -8,7 +8,6 @@ import { Table, UpdateQuery, type UpdateQueryOpt } from '../../shared/helpers/up
 export class TaskService {
   private readonly dbConnection
   private readonly firstElement = 0
-  private readonly affectedRows = 1
 
   constructor() {
     this.dbConnection = pool

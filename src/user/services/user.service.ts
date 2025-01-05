@@ -1,10 +1,14 @@
-import type { ResultSetHeader } from 'mysql2'
 import pool from '../../data/db'
 import { v4 as uuidv4 } from 'uuid'
 import { bcryptPassword } from '../../shared/helpers/encrypt.password'
 import { Table, UpdateQuery, type UpdateQueryOpt } from '../../shared/helpers/update.query'
-import type { UpdateUser, User, UserDb } from '../schemas/user.schema'
+import type { ResultSetHeader, RowDataPacket } from 'mysql2'
+import type { UpdateUser, User } from '../schemas/user.schema'
 import type { UserCredential } from '../schemas/user.credential.schema'
+
+interface userIdDb extends RowDataPacket {
+  user_id: string
+}
 
 export class UserService {
   private readonly dbConnection
@@ -14,24 +18,18 @@ export class UserService {
     this.dbConnection = pool
   }
 
-  async getUsers(): Promise<UserDb[]> {
-    const [users] = await this.dbConnection.pool.execute<UserDb[]>('SELECT * FROM `users`')
-    return users
-  }
-
   async getUserById(id: string): Promise<User> {
     const values = [id]
-    const [user] = await this.dbConnection.pool.execute<UserDb[]>('SELECT * FROM `users` WHERE `user_id` = ?', values)
+    const [user] = await this.dbConnection.pool.execute<User[]>('SELECT * FROM `users` WHERE `user_id` = ?', values)
     return user[this.firstElement]
   }
 
   async getUserIdByEmail(emailUser: string): Promise<string> {
-    const [userId] = await this.dbConnection.pool.execute<UserDb[]>(
-      'SELECT `password` FROM `credentials` WHERE `email` = ?',
+    const [userId] = await this.dbConnection.pool.execute<userIdDb[]>(
+      'SELECT user_id FROM `credentials` WHERE `email` = ?',
       [emailUser],
     )
-
-    return userId[this.firstElement].id
+    return userId[this.firstElement].user_id
   }
 
   async createUser(user: UserCredential): Promise<ResultSetHeader[]> {
@@ -56,6 +54,8 @@ export class UserService {
   }
 
   async updateUser(id: string, user: UpdateUser): Promise<ResultSetHeader> {
+    console.log('updateUser')
+
     const updateOpt: UpdateQueryOpt = {
       table: Table.USER,
       dto: user,

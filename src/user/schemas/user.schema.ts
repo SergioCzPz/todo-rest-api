@@ -19,7 +19,7 @@ export type CreateUser = z.infer<typeof UserSchema>
 
 export type UserDb = z.infer<typeof UserWithId> & RowDataPacket
 
-export type User = z.infer<typeof UserSchema>
+export type User = z.infer<typeof UserSchema> & RowDataPacket
 
 export const PartialUserSchema = UserSchema.partial()
 

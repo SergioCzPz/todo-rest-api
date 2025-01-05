@@ -1,7 +1,15 @@
-import type { ResultSetHeader } from 'mysql2'
 import pool from '../../data/db'
-import type { Credential, UpdateCredential } from '../schemas/credential.schema'
 import { Table, UpdateQuery, type UpdateQueryOpt } from '../../shared/helpers/update.query'
+import type { ResultSetHeader, RowDataPacket } from 'mysql2'
+import type { Credential, UpdateCredential } from '../schemas/credential.schema'
+
+interface Email extends RowDataPacket {
+  email: string
+}
+
+interface Password extends RowDataPacket {
+  password: string
+}
 
 export class CredentialService {
   private readonly dbConnection
@@ -31,5 +39,23 @@ export class CredentialService {
 
     const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)
     return resultSetHeader
+  }
+
+  async getEmailByEmail(email: string): Promise<string | undefined> {
+    const values = [email]
+    const [emailDb] = await this.dbConnection.pool.execute<Email[]>(
+      'SELECT `email` FROM `credentials` WHERE `email` = ?',
+      values,
+    )
+    return emailDb[this.firstElArr].email
+  }
+
+  async getPasswordByEmail(email: string): Promise<string> {
+    const values = [email]
+    const [PassDb] = await this.dbConnection.pool.execute<Password[]>(
+      'SELECT `password` FROM `credentials` WHERE `email` = ?',
+      values,
+    )
+    return PassDb[this.firstElArr].password
   }
 }

@@ -1,39 +1,30 @@
-import type { RowDataPacket, ResultSetHeader } from 'mysql2'
 import pool from '../../data/db'
-import type { Credential } from '../schemas/auth.schema'
 import bcrypt from 'bcrypt'
 import { UserService } from '../../user/services/user.service'
 import type { UserCredential } from '../../user/schemas/user.credential.schema'
-
-interface Password extends RowDataPacket {
-  password: string
-}
+import { CredentialService } from '../../user/services/credential.service'
+import type { CreateCredential } from '../../user/schemas/credential.schema'
 
 export class AuthService {
   private readonly dbConnection
-  private readonly noFieldCount = 0
-  private readonly passwordArr = 0
   private readonly affectedRow = 1
 
-  constructor(private readonly userService: UserService = new UserService()) {
+  constructor(
+    private readonly userService: UserService = new UserService(),
+    private readonly credentialService: CredentialService = new CredentialService(),
+  ) {
     this.dbConnection = pool
   }
 
-  async authenticate(credential: Credential): Promise<boolean> {
+  async authenticate(credential: CreateCredential): Promise<boolean> {
     const { email, password } = credential
-    const [resultSetHeaderEmail] = await this.dbConnection.pool.execute<ResultSetHeader>(
-      'SELECT `email` FROM `credentials` WHERE `email` = ?',
-      [email],
-    )
+    const emailDb = await this.credentialService.getEmailByEmail(email)
 
-    if (resultSetHeaderEmail.fieldCount === this.noFieldCount) return false
+    if (emailDb === undefined) return false
 
-    const [passwordDb] = await this.dbConnection.pool.execute<Password[]>(
-      'SELECT `password` FROM `credentials` WHERE `email` = ?',
-      [email],
-    )
+    const passwordDb = await this.credentialService.getPasswordByEmail(email)
 
-    const isValid = await bcrypt.compare(password, passwordDb[this.passwordArr].password)
+    const isValid = await bcrypt.compare(password, passwordDb)
 
     return isValid
   }
