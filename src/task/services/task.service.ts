@@ -1,9 +1,12 @@
-import type { ResultSetHeader } from 'mysql2'
 import pool from '../../data/db'
 import { v4 as uuidv4 } from 'uuid'
-import type { CreateTask, Task, TaskDb, UpdateTask } from '../schemas/task.schema'
 import { formatDateIso } from '../../shared/helpers/date.iso'
 import { Table, UpdateQuery, type UpdateQueryOpt } from '../../shared/helpers/update.query'
+import type { ResultSetHeader } from 'mysql2'
+import type { CreateTask, UpdateTask } from '../schemas/task.schema'
+import type { TaskStatusDb, UpdateTaskStatus } from '../schemas/task.status.schema'
+import type { UpdateStatusNoBoolean } from '../schemas/status.schema'
+import { transformTaskStatus } from '../../shared/helpers/transform.task'
 
 export class TaskService {
   private readonly dbConnection
@@ -13,17 +16,21 @@ export class TaskService {
     this.dbConnection = pool
   }
 
-  // QUERY FOR /tasks/status
-  // SELECT * FROM `tasks` t INNER JOIN `task_status` ts ON t.task_id = ts.task_id',
-  async getTasks(): Promise<TaskDb[]> {
-    const [tasks] = await this.dbConnection.pool.execute<TaskDb[]>('SELECT * FROM `tasks`')
+  async getTasksByUserId(userId: string): Promise<TaskStatusDb[]> {
+    const values = [userId]
+    const [tasks] = await this.dbConnection.pool.execute<TaskStatusDb[]>(
+      'SELECT t.`task_id`, t.`task`, ts.`status`, ts.`start_date`, ts.`finish_date` FROM `tasks` t RIGHT JOIN `task_status` ts ON t.task_id = ts.task_id WHERE t.user_id = ?',
+      values,
+    )
     return tasks
   }
 
-  // QUERY FOR /tasks/status/:id
-  // SELECT * FROM `tasks` t INNER JOIN `task_status` ts ON t.task_id = ts.task_id WHERE t.task_id = ?
-  async getTaskById(id: string): Promise<Task> {
-    const [task] = await this.dbConnection.pool.execute<Task[]>('SELECT * FROM `tasks` WHERE task_id = ?', [id])
+  async getTaskById(id: string): Promise<TaskStatusDb> {
+    const values = [id]
+    const [task] = await this.dbConnection.pool.execute<TaskStatusDb[]>(
+      'SELECT t.`task_id`, t.`task`, ts.`status`, ts.`start_date`, ts.`finish_date` FROM `tasks` t RIGHT JOIN `task_status` ts ON t.task_id = ts.task_id WHERE t.task_id = ?',
+      values,
+    )
     return task[this.firstElement]
   }
 
@@ -47,7 +54,11 @@ export class TaskService {
     return [resultSetHeaderTasks, resultSetHeaderStatus]
   }
 
-  async updateTask(id: string, task: UpdateTask): Promise<ResultSetHeader> {
+  async updateTask(id: string, updateTaskStatus: UpdateTaskStatus): Promise<ResultSetHeader> {
+    const task: UpdateTask = {
+      task: updateTaskStatus.task,
+    }
+
     const updateOpt: UpdateQueryOpt = {
       table: Table.TASK,
       dto: task,
@@ -59,10 +70,26 @@ export class TaskService {
     return resultSetHeader
   }
 
+  async updateTaskStatus(id: string, updateTaskStatus: UpdateTaskStatus): Promise<ResultSetHeader> {
+    const status: UpdateStatusNoBoolean = transformTaskStatus(updateTaskStatus)
+
+    const updateOpt: UpdateQueryOpt = {
+      table: Table.TASK_STATUS,
+      dto: status,
+      id: 'task_id',
+    }
+    const query = UpdateQuery(updateOpt)
+
+    const values = [...Object.values(status), id]
+    const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(query, values)
+    return resultSetHeader
+  }
+
   async deleteTask(id: string): Promise<ResultSetHeader> {
+    const values = [id]
     const [resultSetHeader] = await this.dbConnection.pool.execute<ResultSetHeader>(
       'DELETE FROM `tasks` WHERE `task_id` = ? LIMIT 1',
-      [id],
+      values,
     )
     return resultSetHeader
   }

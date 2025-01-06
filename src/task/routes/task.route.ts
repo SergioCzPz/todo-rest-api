@@ -1,10 +1,11 @@
-import type { Request, Response } from 'express'
+import { checkJwt } from '../../shared/middlewares/auth.middleware'
 import { BaseRouter } from '../../shared/routers/base.router'
 import { TaskController } from '../controllers/task.controller'
 import { validateTaskCreate, validateTaskUpdate } from '../middlewares/task.validate.middleware'
-import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
-import type { CreateTask, UpdateTask } from '../schemas/task.schema'
-import { checkJwt } from '../../shared/middlewares/auth.middleware'
+import type { ReqAuthUser, RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
+import type { CreateTask } from '../schemas/task.schema'
+import type { Request, Response } from 'express'
+import type { UpdateTaskStatus } from '../schemas/task.status.schema'
 
 export class TaskRouter extends BaseRouter<TaskController> {
   constructor() {
@@ -13,11 +14,11 @@ export class TaskRouter extends BaseRouter<TaskController> {
   }
 
   private routes(): void {
-    this.router.get('/tasks', async (req: Request, res: Response) => {
+    this.router.get('/tasks', checkJwt, async (req: ReqAuthUser, res: Response) => {
       await this.controller.getTasks(req, res)
     })
 
-    this.router.get('/tasks/:id', async (req: Request, res: Response) => {
+    this.router.get('/tasks/:id', checkJwt, async (req: Request, res: Response) => {
       await this.controller.getTask(req, res)
     })
 
@@ -29,12 +30,12 @@ export class TaskRouter extends BaseRouter<TaskController> {
       '/tasks/:id',
       checkJwt,
       validateTaskUpdate,
-      async (req: RequestUpdate<UpdateTask, string>, res: Response) => {
+      async (req: RequestUpdate<UpdateTaskStatus, string>, res: Response) => {
         await this.controller.updateTask(req, res)
       },
     )
 
-    this.router.delete('/tasks/:id', async (req: Request, res: Response) => {
+    this.router.delete('/tasks/:id', checkJwt, async (req: Request, res: Response) => {
       await this.controller.deleteTask(req, res)
     })
   }

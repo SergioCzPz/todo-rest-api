@@ -1,3 +1,4 @@
+import type { UpdateStatus, UpdateStatusNoBoolean } from '../../task/schemas/status.schema'
 import type { UpdateTask } from '../../task/schemas/task.schema'
 import type { UpdateCredential } from '../../user/schemas/credential.schema'
 import type { UpdateUser } from '../../user/schemas/user.schema'
@@ -11,7 +12,7 @@ export enum Table {
 
 export interface UpdateQueryOpt {
   table: Table
-  dto: UpdateTask | UpdateUser | UpdateCredential
+  dto: UpdateTask | UpdateUser | UpdateCredential | UpdateStatus | UpdateStatusNoBoolean
   id: string
 }
 

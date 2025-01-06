@@ -1,15 +1,20 @@
-import type { Request, Response } from 'express'
-import { TaskService } from '../services/task.service'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes'
-import type { RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
-import type { CreateTask, UpdateTask } from '../schemas/task.schema'
+import { TaskService } from '../services/task.service'
+import type { Request, Response } from 'express'
+import type { ReqAuthUser, RequestCreate, RequestUpdate } from '../../shared/constants/request/request'
+import type { CreateTask } from '../schemas/task.schema'
+import type { UpdateTaskStatus } from '../schemas/task.status.schema'
 
 export class TaskController {
   constructor(private readonly taskService: TaskService = new TaskService()) {}
 
-  async getTasks(req: Request, res: Response): Promise<void> {
+  async getTasks(req: ReqAuthUser, res: Response): Promise<void> {
     try {
-      const tasks = await this.taskService.getTasks()
+      if (req.session?.userId === undefined) throw Error('No User Found')
+      const {
+        session: { userId },
+      } = req
+      const tasks = await this.taskService.getTasksByUserId(userId)
       res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: tasks })
     } catch (error) {
       console.log(error)
@@ -44,13 +49,22 @@ export class TaskController {
     }
   }
 
-  async updateTask(req: RequestUpdate<UpdateTask, string>, res: Response): Promise<void> {
+  async updateTask(req: RequestUpdate<UpdateTaskStatus, string>, res: Response): Promise<void> {
     try {
       const {
         params: { id },
       } = req
-      const resultSetHeader = await this.taskService.updateTask(id, req.body)
-      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeader })
+
+      console.log(req.body.task !== undefined)
+
+      if (req.body.task !== undefined) {
+        const resultSetHeaderTask = await this.taskService.updateTask(id, req.body)
+        res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeaderTask })
+        return
+      }
+
+      const resultSetHeaderTaskStatus = await this.taskService.updateTaskStatus(id, req.body)
+      res.status(StatusCodes.OK).json({ message: ReasonPhrases.OK, data: resultSetHeaderTaskStatus })
     } catch (error) {
       console.log(error)
     }
