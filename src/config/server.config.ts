@@ -1,10 +1,11 @@
-import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import express from 'express'
+import helmet from 'helmet'
 import { EnvVariables } from '../shared/constants/env/env.constants'
 import { getNumEnvironment } from '../shared/helpers/env'
 import { corsOptions } from './cors.config'
 import { routers } from './router.config'
-import cookieParser from 'cookie-parser'
 
 export class ServerConfig {
   public app: express.Application
@@ -17,6 +18,7 @@ export class ServerConfig {
   }
 
   private configureMiddleware(): void {
+    this.app.use(helmet())
     this.app.use(express.json())
     this.app.use(express.urlencoded({ extended: true }))
     this.app.use(cors(corsOptions))
