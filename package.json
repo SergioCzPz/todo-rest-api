@@ -7,8 +7,12 @@
     "lint": "npx eslint ./src",
     "lint:fix": "npx eslint --fix-dry-run ./src",
     "start:dev": "nodemon - exec 'ts-node' ./src/app.ts",
-    "start:build": "tsc",
-    "prepare": "husky"
+    "start:build": "npm run validate-typescript && npm run build:clean && npm run generate-dist",
+    "start": "node ./dist/app.js",
+    "prepare": "husky",
+    "build:clean": "rimraf dist; exit 0",
+    "validate-typescript": "tsc -p tsconfig.prod.json --noEmit",
+    "generate-dist": "swc ./src -d dist --strip-leading-paths"
   },
   "author": "Sergio Cruz",
   "license": "ISC",
@@ -16,6 +20,8 @@
     "@commitlint/cli": "19.6.1",
     "@commitlint/config-conventional": "19.6.0",
     "@eslint/js": "9.17.0",
+    "@swc/cli": "0.5.2",
+    "@swc/core": "1.10.4",
     "@types/bcrypt": "5.0.2",
     "@types/cookie-parser": "1.4.8",
     "@types/cors": "2.8.17",
@@ -31,6 +37,7 @@
     "husky": "9.1.7",
     "nodemon": "3.1.9",
     "prettier": "3.4.2",
+    "rimraf": "6.0.1",
     "ts-node": "10.9.2",
     "typescript": "5.7.2",
     "typescript-eslint": "8.18.2"
